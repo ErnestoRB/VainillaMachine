@@ -1,0 +1,4 @@
+inicio:
+LOAD_CONST 10
+PRINT
+JMP inicio
