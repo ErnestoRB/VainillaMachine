@@ -1,0 +1,43 @@
+name: Rust CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and upload artifact
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: moonrepo/setup-rust@v1
+        with:
+          rust-version: 1.67  # Cambia esto por la versión de Rust que prefieras
+
+      - name: Install dependencies
+        run: cargo build --release
+
+      - name: Build project
+        run: cargo build --release
+
+      - name: Archive the build artifact
+        if: success()
+        run: |
+          mkdir -p artifacts
+          cp target/release/vainilla-machine* ./artifacts
+        #  cp target/${{ matrix.os == 'windows-latest' && 'x86_64-pc-windows-msvc' || (matrix.os == 'macos-latest' && 'x86_64-apple-darwin' || 'x86_64-unknown-linux-gnu') }}/release/my_project_name ./artifacts/  # Cambia "my_project_name" por el nombre de tu binario
+      - name: Upload artifact to GitHub
+        uses: actions/upload-artifact@v3
+        with:
+          name: vainilla-${{ matrix.os }}
+          path: ./artifacts
